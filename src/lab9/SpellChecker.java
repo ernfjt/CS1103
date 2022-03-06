@@ -68,38 +68,48 @@ public class SpellChecker {
 	}
 
 	/**
+	 * This method creates and returns a TreeSet<String> containing variations on
+	 * badWord that are contained in the dictionary. In the main program, when it
+	 * finds a word that is not in the set of legal words, pass that word to this
+	 * method (along with the set). Take the return value and output any words that
+	 * it contains; these are the suggested correct spellings of the misspelled
+	 * word.
+	 * 
 	 * @param badWord    the user's input word
 	 * @param dictionary
 	 * @return suggested word set
 	 */
 	static TreeSet<String> corrections(String badWord, HashSet<String> dictionary) {
 		TreeSet<String> wordsVariation = new TreeSet<String>();
-		String subStr1, subStr2, checkStr;
+		String str1, str2, checkStr;
 
 		for (int i = 0; i < badWord.length(); i++) {
 			if (!dictionary.contains(badWord)) {
-				subStr1 = badWord.substring(0, i);
-				subStr2 = badWord.substring(i + 1);
+				// To get the first i characters in badWord (not including the character in
+				// position i, which would be character number i+1).
+				str1 = badWord.substring(0, i);
+				str2 = badWord.substring(i + 1);
 
 				// Delete any one of the letters from the misspelled word.
-				checkStr = subStr1 + subStr2;
+				checkStr = str1 + str2;
 				if (dictionary.contains(checkStr)) {
 					wordsVariation.add(checkStr);
 				}
 
 				// Change any letter in the misspelled word to any other letter.
 				for (char ch = 'a'; ch <= 'z'; ch++) {
-					checkStr = subStr1 + ch + subStr2;
+					checkStr = str1 + ch + str2;
 					if (dictionary.contains(checkStr)) {
 						wordsVariation.add(checkStr);
 					}
 				}
 
 				// Insert any letter at any point in the misspelled word.
-				subStr1 = badWord.substring(0, i);
-				subStr2 = badWord.substring(i);
+				// Add character before the first i characters in badWord.
+				str1 = badWord.substring(0, i);
+				str2 = badWord.substring(i);
 				for (char ch = 'a'; ch <= 'z'; ch++) {
-					checkStr = subStr1 + ch + subStr2;
+					checkStr = str1 + ch + str2;
 					if (dictionary.contains(checkStr)) {
 						wordsVariation.add(checkStr);
 					}
@@ -108,8 +118,8 @@ public class SpellChecker {
 				// Insert a space at any point in the misspelled word (and check that both of
 				// the words that are produced are in the dictionary)
 				char ch = ' ';
-				checkStr = subStr1 + ch + subStr2;
-				if (dictionary.contains(subStr1) && dictionary.contains(subStr2)) {
+				checkStr = str1 + ch + str2;
+				if (dictionary.contains(str1) && dictionary.contains(str2)) {
 					wordsVariation.add(checkStr);
 				}
 			}
@@ -117,11 +127,11 @@ public class SpellChecker {
 		// Swap any two neighboring characters in the misspelled word.
 		for (int i = 1; i < badWord.length(); i++) {
 			if (!dictionary.contains(badWord)) {
-				subStr1 = badWord.substring(0, i - 1);
+				str1 = badWord.substring(0, i - 1);
 				char ch1 = badWord.charAt(i - 1);
 				char ch2 = badWord.charAt(i);
-				subStr2 = badWord.substring(i + 1);
-				checkStr = subStr1 + ch2 + ch1 + subStr2;
+				str2 = badWord.substring(i + 1);
+				checkStr = str1 + ch2 + ch1 + str2;
 				if (dictionary.contains(checkStr)) {
 					wordsVariation.add(checkStr);
 				}
