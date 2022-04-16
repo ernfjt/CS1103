@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
@@ -30,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
 
 /**
  * A panel that contains a large drawing area where strings can be drawn. The
@@ -45,7 +47,6 @@ public class DrawTextPanel extends JPanel {
 	// variable should be replaced by a variable of type
 	// ArrayList<DrawStringItem> that can store multiple items.
 
-	// ★★private DrawTextItem theString; // change to an ArrayList<DrawTextItem> !
 	private ArrayList<DrawTextItem> theString = new ArrayList<DrawTextItem>();
 
 	private Color currentTextColor = Color.BLACK; // Color applied to new strings.
@@ -71,11 +72,9 @@ public class DrawTextPanel extends JPanel {
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			// ★★if (theString != null)
-			// ★★ theString.draw(g);
+
 			if (theString != null) {
 				for (DrawTextItem s : theString) {
-					// for(int i= 0; i<theString.size(); i++) {
 					s.draw(g);
 				}
 			}
@@ -118,7 +117,34 @@ public class DrawTextPanel extends JPanel {
 			public void mousePressed(MouseEvent e) {
 				doMousePress(e);
 			}
+
 		});
+		// ★★
+		canvas.addMouseMotionListener(new MouseMotionAdapter() {
+			public void mouseDragged(MouseEvent e) {
+				doMouseDrag(e);
+			}
+		});
+
+	}
+
+	/**
+	 * This method is called when the user drags the drawing area. A new string is
+	 * added to the drawing area. The center of the string is at the point where the
+	 * user clicked.
+	 * 
+	 * @param e　the mouse event that was generated when the user dragged
+	 */
+	public void doMouseDrag(MouseEvent e) {
+		String text = input.getText().trim();
+		DrawTextItem s = new DrawTextItem(text, e.getX(), e.getY());
+		s.setTextColor(currentTextColor);
+
+		s.setX(e.getX());
+		s.setY(e.getY());
+		theString.add(s);
+		undoMenuItem.setEnabled(true);
+		canvas.repaint();
 	}
 
 	/**
@@ -138,17 +164,22 @@ public class DrawTextPanel extends JPanel {
 		s.setTextColor(currentTextColor); // Default is null, meaning default color of the canvas (black).
 
 //   SOME OTHER OPTIONS THAT CAN BE APPLIED TO TEXT ITEMS:
-//		s.setFont( new Font( "Serif", Font.ITALIC + Font.BOLD, 12 ));  // Default is null, meaning font of canvas.
-//		s.setMagnification(3);  // Default is 1, meaning no magnification.
-//		s.setBorder(true);  // Default is false, meaning don't draw a border.
-//		s.setRotationAngle(25);  // Default is 0, meaning no rotation.
-//		s.setTextTransparency(0.3); // Default is 0, meaning text is not at all transparent.
-//		s.setBackground(Color.BLUE);  // Default is null, meaning don't draw a background area.
-//		s.setBackgroundTransparency(0.7);  // Default is 0, meaning background is not transparent.
+		// s.setFont(new Font("Serif", Font.ITALIC + Font.BOLD, 30)); // Default is
+		// null, meaning font of canvas.
+		// s.setMagnification(3); // Default is 1, meaning no magnification.
+		// s.setBorder(true); // Default is false, meaning don't draw a border.
+		// s.setRotationAngle(25); // Default is 0, meaning no rotation.
+		// s.setTextTransparency(0.5); // Default is 0, meaning text is not at all
+		// transparent.
+		// s.setBackground(Color.RED); // Default is null, meaning don't draw a
+		// background area.
+		// s.setBackgroundTransparency(0.7); // Default is 0, meaning background is not
+		// transparent.
 
 		// ★★theString = s; // Set this string as the ONLY string to be drawn on the
 		// canvas!
-		theString.add(s);
+
+		theString.add(s); // Add to ArrayList strings
 		undoMenuItem.setEnabled(true);
 		canvas.repaint();
 	}
@@ -213,8 +244,6 @@ public class DrawTextPanel extends JPanel {
 	 */
 	private void doMenuCommand(String command) {
 		if (command.equals("Save...")) { // save all the string info to a file
-			// ★★JOptionPane.showMessageDialog(this, "Sorry, the Save command is not
-			// implemented.");
 
 			File File = fileChooser.getOutputFile(this, "Select File Name", "stringinfo.txt");
 			if (File == null)
@@ -263,7 +292,7 @@ public class DrawTextPanel extends JPanel {
 
 					s.setX(Integer.parseInt(scanner.nextLine()));
 					s.setY(Integer.parseInt(scanner.nextLine()));
-					
+
 					red = scanner.nextInt();
 					green = scanner.nextInt();
 					blue = scanner.nextInt();
@@ -279,11 +308,11 @@ public class DrawTextPanel extends JPanel {
 			}
 
 		} else if (command.equals("Clear")) { // remove all strings
-			theString = null; // Remove the ONLY string from the canvas.
+			theString.clear();
 			undoMenuItem.setEnabled(false);
 			canvas.repaint();
 		} else if (command.equals("Remove Item")) { // remove the most recently added string
-			theString = null; // Remove the ONLY string from the canvas.
+			theString.clear();
 			undoMenuItem.setEnabled(false);
 			canvas.repaint();
 		} else if (command.equals("Set Text Color...")) {
